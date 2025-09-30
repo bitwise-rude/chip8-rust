@@ -10,5 +10,7 @@ fn main() {
     let file_data = get_file_contents("roms\\UFO.ch8");
 
     // making an interpreter to handle all interpreting task
-    let interpreter = chip8::Interpreter::new(file_data);
+    let mut interpreter = chip8::Interpreter::new(file_data);
+
+    interpreter.step();
 }
