@@ -116,7 +116,7 @@ impl Interpreter {
             
             0x0000 => match opcode {
                 0x00E0 => { // CLS
-                    panic!("CLS not implemented");
+                    panic!("CLS not implemented"); // have to implement
                 }
                 0x00EE => { // RET
                     self.sp -= 1;
