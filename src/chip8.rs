@@ -39,6 +39,7 @@ impl Interpreter {
         let x   = ((opcode & 0x0F00) >> 8) as usize;
         let y   = ((opcode & 0x00F0) >> 4) as usize;
         let kk  = (opcode & 0x00FF) as u8;
+        let k: u8 =   kk & 0x0F; // last bit used in 8 calculation
 
         let mut rng = rand::thread_rng();
 
@@ -57,12 +58,62 @@ impl Interpreter {
                     self.pc += 2;
                 }
             }
+            0x4000 =>{ // SNE Vx, byte
+                if self.registers[x] != kk {
+                    self.pc += 2;
+                }
+            }
+            0x5000 => {
+                if self.registers[x] == self.registers[y]{
+                    self.pc +=2;
+                }
+            }
+            0x6000 => {
+                self.registers[x] = kk;
+            }
+            0x7000 => {
+                self.registers[x] += kk;
+            }
+            0x8000 => {
+                match k{
+                    0 => self.registers[x] = self.registers[y],
+                    1 => self.registers[x] |= self.registers[y],
+                    2 => self.registers[x] &= self.registers[y],
+                    3 => self.registers[x] ^= self.registers[y],
+                    4 => {
+                        let (result, carry) = self.registers[x].overflowing_add(self.registers[y]);
+                        self.registers[x] = result;
+                        self.registers[0xF] = if carry {1} else {0};
+                    },
+                    5 => {
+                        self.registers[0xF] = if self.registers[x]> self.registers[y] {1} else {0};
+                        self.registers[x] = self.registers[x] - self.registers[y];
+                    }
+                    6 => {
+                        self.registers[0xF] = self.registers[x] & 0x01;
+                        self.registers[x] >>= 1;
+                    }
+                    7 => {
+                        self.registers[0xF] = if self.registers[y] > self.registers[x] {1} else {0};
+                        self.registers[x] = self.registers[y] - self.registers[x];
+                    }
+                    0xE => {
+                        self.registers[0xF] = (self.registers[x] & 0x80) >> 7; // store MSB in VF
+                        self.registers[x] <<= 1
+                    }
+                    _ => panic!("Not implemented")
+                }
+
+            }
+            0x9000 => {self.pc += if self.registers[x] != self.registers[y] {2} else {0} }
             0xA000 => { // LD I, addr
                 self.I = nnn;
             }
             0xC000 => { // RND Vx, byte
                 self.registers[x] = rng.random::<u8>() & kk;
             }
+            // have to do for D
+            
             0x0000 => match opcode {
                 0x00E0 => { // CLS
                     panic!("CLS not implemented");
