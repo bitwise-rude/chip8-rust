@@ -12,5 +12,7 @@ fn main() {
     // making an interpreter to handle all interpreting task
     let mut interpreter = chip8::Interpreter::new(file_data);
 
-    interpreter.step();
+    for i in 0..10{
+        interpreter.step();
+    }
 }
