@@ -69,16 +69,34 @@ impl CPU {
                 0x6 => self.reg[x as usize] = kk,
 
                 0xD => {
-                   for loc in 0..(n-1){
-                      let sprite = self.memory.memory[(self.i + loc as u16 ) as usize]; 
-                      for pos_x in 0..7 {
-                          self.frame_buffer[(self.reg[x  as usize]+pos_x) as usize]
-                              [(self.reg[y as usize] + loc) as usize] = (sprite & (0b10000000 >> pos_x) >> (7-pos_x)); 
-                          
-                      }
-                   }
-                }
+                    let x = self.reg[x as usize] as usize;
+                    let y = self.reg[y as usize] as usize;
+                    let height = n as usize;
 
+                    self.reg[0xF] = 0; // reset collision flag
+
+                    for row in 0..height {
+                    let sprite = self.memory.memory[(self.i + row as u16) as usize];
+
+                    for col in 0..8 {
+                         let bit = (sprite >> (7 - col)) & 1;
+                    if bit == 0 {
+                         continue;
+                    }
+
+                     let px = (x + col) % 64;
+                    let py = (y + row) % 32;
+
+                     let old_pixel = self.frame_buffer[px][py];
+
+                    if old_pixel == 1 {
+                         self.reg[0xF] = 1; // collision
+                    }
+
+                     self.frame_buffer[px][py] ^= 1;
+                         }
+                    }
+                    }
 
                 0x7 => self.reg[x as usize] += kk,
 

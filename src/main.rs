@@ -46,7 +46,6 @@ async fn main() {
         for x in 0..64 {
             for y in 0..32{
                 let mut color = BLACK;
-
                 if cpu.frame_buffer[x][y] == 1 {
                     color = WHITE;
                 }
