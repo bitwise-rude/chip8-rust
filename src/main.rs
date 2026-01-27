@@ -1,11 +1,27 @@
 use std::env;
 use std::process::exit; 
 use std::fs;
+use macroquad::prelude::*;
+
 
 mod intrptr;
 mod memory;
 
-fn main() {
+const SCALE: i32  = 15;
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "CHIP 8".to_owned(),
+        window_width: 64 * SCALE,
+        window_height: 32 * SCALE,
+        window_resizable: false, 
+        fullscreen: false,      
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
+async fn main() {
     let mut args = env::args();
     
     if args.len() < 2 { 
@@ -21,17 +37,29 @@ fn main() {
     // memory
     let mem = memory::Memory::new(rom_contents);
 
-    // frame buffer
-    let frame_buffer:[[u8;32];64] = [[0;32];64];
-
     // make cpu
     let mut cpu = intrptr::CPU::new(mem);
    
     for i in 0..100{
         cpu.step();
+
+        for x in 0..64 {
+            for y in 0..32{
+                let mut color = BLACK;
+
+                if cpu.frame_buffer[x][y] == 1 {
+                    color = WHITE;
+                }
+                draw_rectangle(
+                    (x as i32 * SCALE) as f32,
+                    (y as i32 * SCALE) as f32,
+                    SCALE as f32,
+                    SCALE as f32 ,
+                    color);
+            }
+        }
+
+        next_frame().await;
     }
-
-
-
 
 }

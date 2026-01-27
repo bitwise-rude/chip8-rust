@@ -15,7 +15,7 @@ pub struct CPU {
     stack: [u16;16],
 
     // frame_buffer
-    frame_buffer:[[u8;32];64],
+    pub frame_buffer:[[u8;32];64],
 }
 
 impl CPU {
