@@ -46,7 +46,7 @@ impl CPU {
         let nnn:u16 = op_code & 0x0FFF;
         let n: u8 = (lo_opcode & 0x0F ) as u8;
         let x: u8 = (hi_opcode & 0x0F) as u8;
-        let y: u8 = (lo_opcode & 0xF0) as u8;
+        let y: u8 = ((lo_opcode & 0xF0) as u8)>>4;
         let kk = lo_opcode;
         let f: u8 = ((hi_opcode & 0xF0) >> 4 )as u8;
         
@@ -68,8 +68,18 @@ impl CPU {
 
                 0x6 => self.reg[x as usize] = kk,
 
-                0xD => (), 
-                
+                0xD => {
+                   for loc in 0..(n-1){
+                      let sprite = self.memory.memory[(self.i + loc as u16 ) as usize]; 
+                      for pos_x in 0..7 {
+                          self.frame_buffer[(self.reg[x  as usize]+pos_x) as usize]
+                              [(self.reg[y as usize] + loc) as usize] = (sprite & (0b10000000 >> pos_x) >> (7-pos_x)); 
+                          
+                      }
+                   }
+                }
+
+
                 0x7 => self.reg[x as usize] += kk,
 
                 0x1 => self.pc = nnn,
