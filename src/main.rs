@@ -40,13 +40,14 @@ async fn main() {
     // make cpu
     let mut cpu = intrptr::CPU::new(mem);
    
-    for i in 0..100{
+    for _ in 0..100{
         cpu.step();
 
+        // drawing the framebuffer
         for x in 0..64 {
             for y in 0..32{
                 let mut color = BLACK;
-                if cpu.frame_buffer[x][y] == 1 {
+                if cpu.frame_buffer[y][x] == 1 {
                     color = WHITE;
                 }
                 draw_rectangle(
