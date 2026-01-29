@@ -21,7 +21,7 @@ pub struct CPU {
 impl CPU {
     pub fn new(mem:memory::Memory) -> Self {
         Self { 
-            pc: 0x100,
+            pc: 0x200,
             sp: 0xF,
             reg: [0;16],
             i: 0x00,
@@ -41,6 +41,11 @@ impl CPU {
         let lo_opcode:u8 = self.memory.memory[(self.pc +1 )  as usize];
         
         let op_code = u16::from_be_bytes([hi_opcode,lo_opcode]);
+        
+        println!("Currently Executing Instruction {:04x} at PC: {:03x}",
+            op_code,
+            self.pc);
+ 
         self.pc += 2;
 
         let nnn:u16 = op_code & 0x0FFF;
@@ -49,24 +54,25 @@ impl CPU {
         let y: u8 = ((lo_opcode & 0xF0) as u8)>>4;
         let kk = lo_opcode;
         let f: u8 = ((hi_opcode & 0xF0) >> 4 )as u8;
-        
-        // logs
-        println!("Currently Executing Instruction {:04x} at PC: {:03x}",
-            op_code,
-            self.pc);
-        
+       
         // opcode decode and execution
         match f{
                 0xA => self.i = nnn,
 
-                0x0 => {
-                    match lo_opcode {
-                        0xE0 => (),
-                        _ => println!("Not implemented EO INS"),
-                    }
-                },
-
                 0x6 => self.reg[x as usize] = kk,
+
+                0x0 => {
+                    if kk == 0xE0 {
+                        for i in 0..31{
+                            for j in 0..63{
+                                self.frame_buffer[i][j] = 0;
+                            }
+                        }
+                    }
+                    else{
+                        panic!("NOT IMPLEMENTED");
+                    }
+                }
 
                 0x7 => self.reg[x as usize] += kk,
 
@@ -76,7 +82,7 @@ impl CPU {
                    let c_x = self.reg[x as usize];
                    let c_y = self.reg[y as usize];
 
-                    for cnt in 0..n-1{
+                    for cnt in 0..n{
                         let sprite:u8 = self.memory.memory[(self.i + (cnt as u16)) as usize]; 
 
                         for of_x in 0..7{

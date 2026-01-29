@@ -40,7 +40,7 @@ async fn main() {
     // make cpu
     let mut cpu = intrptr::CPU::new(mem);
    
-    for _ in 0..100{
+    for _ in 0..1000000{
         cpu.step();
 
         // drawing the framebuffer

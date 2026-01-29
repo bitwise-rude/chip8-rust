@@ -8,8 +8,9 @@ impl Memory{
         
         // fill memory with rom
        for i in 0..rom.len(){
-            temp.memory[0x100 + i] = rom[i];
+            temp.memory[0x200 + i] = rom[i];
         }
+
         return temp;
     }
 }
